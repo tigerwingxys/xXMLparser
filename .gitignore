@@ -4,3 +4,4 @@ src/XMLElement.java
 src/XMLparser.java
 src/xXMLElement.java.bak
 *.bak
+.idea/*

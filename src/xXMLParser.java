@@ -13,8 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -------------------------------------------------------------------------*/
-package com.inmountains.xxXMLparser;
-
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,7 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class xXMLparser {
+public class xXMLParser {
     private final static Logger logger = Logger.getLogger("javaLog");
 
     //match Tag begin or end or nullTag
@@ -43,7 +41,7 @@ public class xXMLparser {
     private static Pattern pTagNull = Pattern.compile(catchTagNull);
 
     private xXMLElement document = new xXMLElement();
-    public xXMLparser(){
+    public xXMLParser(){
         document.setType(xXMLElement.EnumType.DOCUMENT);
     }
 

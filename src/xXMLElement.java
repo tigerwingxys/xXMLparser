@@ -85,10 +85,16 @@ public class xXMLElement {
         if( !sText.equals("") ){
             astr += ", Text[" + sText + "]";
         }
-        if( attributesMap.size()>0 ){
+        int iSize = attributesMap.size();
+        if( iSize>0 ){
+            int i = 0;
             astr += ", Attributes[";
             for( String sKey : attributesMap.keySet() ){
-                astr += sKey + "=" + attributesMap.get(sKey) +",";
+                astr += sKey + "=" + attributesMap.get(sKey);
+                if( i != iSize-1 ){
+                    astr += ",";
+                }
+                i ++;
             }
             astr += "]";
         }

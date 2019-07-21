@@ -24,19 +24,15 @@ public class xXMLElement {
     public void clear() {
         attributesMap.clear();
         elementList.clear();
+        listContent.clear();
     }
 
-    private HashMap<String ,String> attributesMap = new HashMap<>();
-    private ArrayList<xXMLElement> elementList = new ArrayList<>();
+    private HashMap<String ,String> attributesMap = new HashMap<String ,String>();
+    private ArrayList<xXMLElement> elementList = new ArrayList<xXMLElement>();
+    private static ArrayList<String> listContent = new ArrayList<String>();
     //normal properties
-    public static enum EnumType {ELEMENT,DOCUMENT};
-    public EnumType enumType = EnumType.ELEMENT;
     public String sName = "";
     public String sText = "";
-
-    public void setType(EnumType aType){
-        enumType = aType;
-    }
 
     //tempory properties for parsing use
     public xXMLElement parentElement = null;
@@ -79,5 +75,28 @@ public class xXMLElement {
     }
     public String getAttribute(String key){
         return attributesMap.get(key);
+    }
+    public ArrayList<String> toStringList(int treeLevel ){
+        String astr = "";
+        for(int i = 0 ; i < treeLevel ; i ++){
+            astr += "    ";
+        }
+        astr += "[" + sName + "]";
+        if( !sText.equals("") ){
+            astr += ", Text[" + sText + "]";
+        }
+        if( attributesMap.size()>0 ){
+            astr += ", Attributes[";
+            for( String sKey : attributesMap.keySet() ){
+                astr += sKey + "=" + attributesMap.get(sKey) +",";
+            }
+            astr += "]";
+        }
+        listContent.add(astr);
+
+        for( xXMLElement oneItem : elementList){
+            oneItem.toStringList(treeLevel + 1);
+        }
+        return listContent;
     }
 }

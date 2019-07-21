@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -------------------------------------------------------------------------*/
 
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -27,22 +28,26 @@ public class xXMLParser {
     //private static String catchTagBegin = "<\\w+[^\\n/<]*[/]?>";
     private static String catchTag = "(?<=<)\\w+\\b";
     private static String catchText = "(?<=>).*(?=<)";
-    private static String  catchTagEnd = "(?<=</)(\\w+(?=[\\s]*))";
+    private static String  catchTagEnd = "(?<=</)\\w+(?=[\\s]*)";
     private static String catchTagNull = "/>";
     //match all Tags, <a> something </a> or <a/> or <a xx="ss"> or </a>...
-    private static String catchAllElements = "((<\\w+[^\\n/<]*[/]?>).*(</\\w+[\\s]*>))|<\\w+[^\\n/<]*[/]?>|</\\w+[\\s]*>";
+    //private static String catchAllElements = "((<\\w+[^\\n/<]*[/]?>).*(</\\w+[\\s]*>))|<\\w+[^\\n/<]*[/]?>|</\\w+[\\s]*>";
     //match key="value" attributes
-    private static String catchAttributes = "(?=[\\s]?)\\w+=\\\".*?\\\"(?<=[\\s]?)";
+    private static String catchAttributes = "\\b\\w+=[\'\"].*?[\'\"]|\\w+=.+\\b";
+    private static String catchCommentBegin = "<!--";
+    private static String catchCommentEnd = "-->";
 
     private static Pattern pTag = Pattern.compile(catchTag);
     private static Pattern pAttribute = Pattern.compile(catchAttributes);
     private static Pattern pText = Pattern.compile(catchText);
     private static Pattern pTagEnd = Pattern.compile(catchTagEnd);
     private static Pattern pTagNull = Pattern.compile(catchTagNull);
+    private static Pattern pCommentBegin = Pattern.compile(catchCommentBegin);
+    private static Pattern pCommentEnd = Pattern.compile(catchCommentEnd);
 
     private xXMLElement document = new xXMLElement();
     public xXMLParser(){
-        document.setType(xXMLElement.EnumType.DOCUMENT);
+        document.sName = "ROOT";
     }
 
     public xXMLElement parseXML(String sXml)
@@ -51,17 +56,37 @@ public class xXMLParser {
             return null;
         }
         logger.log(Level.INFO,"parseXML, begin parse..."+sXml);
+        String[] results = sXml.split("[\r\n]+");
+        return parseXML(results);
+    }
+    public xXMLElement parseXML(String[] listXml)
+    {
+        logger.log(Level.INFO,"parseXML[], begin parse...");
         document.clear();
-        document.setType(xXMLElement.EnumType.DOCUMENT);
 
-        Pattern pattern = Pattern.compile(catchAllElements);
-        Matcher mElements = pattern.matcher(sXml);
-        xXMLElement xmlElement = document.addChild();
-        document.enumState = xXMLElement.EnumState.PARSING;
-        String ss = null;
-        while( mElements.find() ) {
-            ss = mElements.group();
+        xXMLElement xmlElement = document;
+        xmlElement.enumState = xXMLElement.EnumState.PARSING;
+        boolean bCommentBegin = false;
+        for( String ss: listXml ) {
             logger.log(Level.INFO,"parseXML, in while, parsing["+ss+"].");
+            // discard comment lines
+            if( !bCommentBegin ){
+                Matcher m = pCommentBegin.matcher(ss);
+                if( m.find() ){
+                    bCommentBegin = true;
+                    Matcher me = pCommentEnd.matcher(ss);
+                    if( me.find() ){
+                        bCommentBegin = false;
+                    }
+                    continue;
+                }
+            }else{
+                Matcher me = pCommentEnd.matcher(ss);
+                if( me.find() ){
+                    bCommentBegin = false;
+                }
+                continue;
+            }
             xmlElement = parseOneElement(ss,xmlElement);
             if (xmlElement == null){
                 break;
